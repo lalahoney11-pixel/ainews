@@ -631,12 +631,8 @@
                         const objectKey = `images/${timestamp}_${randomStr}.${extension}`;
                         imageUrl = await uploadToOSS(file, objectKey);
                     } else {
-                        // 尝试使用免费图床，失败则提示
-                        try {
-                            imageUrl = await uploadToFileIo(file);
-                        } catch (e) {
-                            throw new Error('在线上传暂时不可用，请在本地使用或联系管理员配置 OSS');
-                        }
+                        // 使用 Vercel API 上传
+                        imageUrl = await uploadToVercelApi(file);
                     }
                     state.uploadedImages.push({ url: imageUrl, name: file.name });
                 } catch (error) {
@@ -670,22 +666,31 @@
             return data.secure_url;
         }
 
-        // 备用：使用 file.io 临时图床
-        async function uploadToFileIo(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const response = await fetch('https://file.io', {
+        // 使用 Vercel API 上传（解决跨域问题）
+        async function uploadToVercelApi(file) {
+            // 将文件转为 base64
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+
+            // 调用 Vercel API
+            const response = await fetch('/api/upload', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ file: base64 })
             });
 
             if (!response.ok) {
-                throw new Error('上传失败，请重试');
+                const error = await response.text();
+                throw new Error('上传失败: ' + error);
             }
 
             const data = await response.json();
-            return data.link;
+            return data.url;
         }
 
         async function uploadToOSS(file, objectKey) {
