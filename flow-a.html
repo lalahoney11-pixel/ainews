@@ -161,6 +161,59 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            header {
+                flex-wrap: wrap;
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            header h1 {
+                font-size: 1rem;
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            header nav {
+                width: 100%;
+                justify-content: flex-end;
+                gap: 12px;
+            }
+            header nav a {
+                font-size: 0.75rem;
+            }
+            main {
+                padding: 16px;
+                gap: 16px;
+            }
+            .images-container {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 8px;
+            }
+            .image-item .delete-btn {
+                opacity: 1;
+                width: 16px;
+                height: 16px;
+                font-size: 10px;
+            }
+            .image-item .checkbox {
+                width: 16px;
+                height: 16px;
+                font-size: 10px;
+            }
+            .image-modal img {
+                max-width: 95%;
+                max-height: 70%;
+            }
+            .image-modal .close-btn {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+            }
+        }
         /* 图片预览模态框 */
         .image-modal {
             position: fixed;
@@ -245,31 +298,31 @@
 </head>
 <body class="bg-brand-dark text-gray-100 min-h-screen font-sans antialiased">
     <!-- BEGIN: MainHeader -->
-    <header class="border-b border-brand-border py-4 px-8 flex items-center justify-between sticky top-0 z-50 glass-morphism">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-neon-glow rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <header class="border-b border-brand-border py-4 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-50 glass-morphism">
+        <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-neon-glow rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                 </svg>
             </div>
-            <h1 class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            <h1 class="text-base sm:text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 truncate">
                 AI 资讯短视频生成器
             </h1>
         </div>
-        <nav class="flex items-center gap-6 text-sm font-medium text-gray-400">
-            <a class="hover:text-brand-accent transition-colors" href="#">项目广场</a>
-            <a class="hover:text-brand-accent transition-colors" href="tutorial.html">使用教程</a>
-            <div class="h-8 w-8 rounded-full bg-gray-800 border border-brand-border cursor-pointer hover:border-brand-accent transition-all"></div>
+        <nav class="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-medium text-gray-400 flex-shrink-0">
+            <a class="hover:text-brand-accent transition-colors whitespace-nowrap" href="#">项目广场</a>
+            <a class="hover:text-brand-accent transition-colors whitespace-nowrap" href="tutorial.html">使用教程</a>
+            <div class="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gray-800 border border-brand-border cursor-pointer hover:border-brand-accent transition-all flex-shrink-0"></div>
         </nav>
     </header>
     <!-- END: MainHeader -->
 
-    <main class="max-w-[1440px] mx-auto p-8 grid grid-cols-12 gap-8 pb-32">
+    <main class="max-w-[1440px] mx-auto p-4 sm:p-8 grid grid-cols-12 gap-4 sm:gap-8 pb-32">
         <!-- BEGIN: LeftColumn -->
-        <section class="col-span-12 lg:col-span-7 space-y-8" data-purpose="configuration-area">
+        <section class="col-span-12 lg:col-span-7 space-y-4 sm:space-y-8" data-purpose="configuration-area">
             <!-- AI Assistant Card - 放在最上面 -->
             <div class="p-[1px] rounded-xl bg-gradient-to-r from-emerald-500/30 to-blue-500/30 shadow-2xl shadow-emerald-500/5" data-purpose="ai-assistant-card">
-                <div class="bg-brand-card rounded-xl p-6 relative overflow-hidden">
+                <div class="bg-brand-card rounded-xl p-4 sm:p-6 relative overflow-hidden">
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full"></div>
                     <div class="relative z-10">
                         <div class="flex items-center justify-between mb-4">
@@ -358,9 +411,9 @@
         <!-- END: LeftColumn -->
 
         <!-- BEGIN: RightColumn -->
-        <aside class="col-span-12 lg:col-span-5 space-y-6 sticky top-24" data-purpose="preview-area">
+        <aside class="col-span-12 lg:col-span-5 space-y-4 sm:space-y-6 lg:sticky lg:top-24" data-purpose="preview-area">
             <!-- Preview Card -->
-            <div class="glass-morphism rounded-2xl p-6 border border-brand-border">
+            <div class="glass-morphism rounded-2xl p-4 sm:p-6 border border-brand-border">
                 <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-500 mb-6">实时预览</h2>
                 
                 <!-- Video Player Mockup -->
