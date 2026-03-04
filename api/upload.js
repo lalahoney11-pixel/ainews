@@ -2,6 +2,7 @@
 // 使用环境变量存储 OSS 密钥，安全且支持在线上传
 
 import { createHmac } from 'crypto';
+import https from 'https';
 
 export default async function handler(req, res) {
   // 设置 CORS 头
@@ -30,11 +31,10 @@ export default async function handler(req, res) {
     const accessKeyId = process.env.OSS_ACCESS_KEY_ID;
     const accessKeySecret = process.env.OSS_ACCESS_KEY_SECRET;
     const bucket = process.env.OSS_BUCKET || 'oss-pai-jthp4harhlmya8j0ax-cn-shanghai';
-    const region = process.env.OSS_REGION || 'oss-cn-shanghai';
     const endpoint = process.env.OSS_ENDPOINT || 'oss-cn-shanghai.aliyuncs.com';
 
     if (!accessKeyId || !accessKeySecret) {
-      res.status(500).json({ error: 'OSS configuration not found' });
+      res.status(500).json({ error: 'OSS configuration not found in environment variables' });
       return;
     }
 
@@ -48,7 +48,6 @@ export default async function handler(req, res) {
     const objectKey = `images/${timestamp}_${randomStr}.jpg`;
 
     // 生成 OSS 签名
-    const date = new Date().toISOString();
     const policy = {
       expiration: new Date(Date.now() + 3600000).toISOString(),
       conditions: [
@@ -62,25 +61,43 @@ export default async function handler(req, res) {
       .update(policyBase64)
       .digest('base64');
 
-    // 构建 FormData 上传到 OSS
-    const formData = new FormData();
-    formData.append('key', objectKey);
-    formData.append('OSSAccessKeyId', accessKeyId);
-    formData.append('policy', policyBase64);
-    formData.append('Signature', signature);
-    formData.append('file', new Blob([buffer], { type: 'image/jpeg' }));
-
-    const uploadUrl = `https://${bucket}.${endpoint}`;
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData
+    // 构建 multipart/form-data 请求体
+    const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+    const postData = buildMultipartData(boundary, {
+      key: objectKey,
+      OSSAccessKeyId: accessKeyId,
+      policy: policyBase64,
+      Signature: signature,
+      file: { buffer, filename: 'image.jpg', contentType: 'image/jpeg' }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OSS upload error:', errorText);
-      throw new Error('OSS upload failed: ' + response.status);
-    }
+    // 上传到 OSS
+    const result = await new Promise((resolve, reject) => {
+      const request = https.request({
+        hostname: `${bucket}.${endpoint}`,
+        port: 443,
+        path: '/',
+        method: 'POST',
+        headers: {
+          'Content-Type': `multipart/form-data; boundary=${boundary}`,
+          'Content-Length': postData.length
+        }
+      }, (response) => {
+        let data = '';
+        response.on('data', (chunk) => data += chunk);
+        response.on('end', () => {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            resolve({ success: true });
+          } else {
+            reject(new Error(`OSS upload failed: ${response.statusCode} - ${data}`));
+          }
+        });
+      });
+
+      request.on('error', (err) => reject(err));
+      request.write(postData);
+      request.end();
+    });
 
     // 构建图片 URL
     const imageUrl = `https://${bucket}.${endpoint}/${objectKey}`;
@@ -89,4 +106,28 @@ export default async function handler(req, res) {
     console.error('Upload error:', error);
     res.status(500).json({ error: error.message });
   }
+}
+
+function buildMultipartData(boundary, fields) {
+  const lines = [];
+  
+  for (const [key, value] of Object.entries(fields)) {
+    if (key === 'file') {
+      lines.push(`--${boundary}`);
+      lines.push(`Content-Disposition: form-data; name="${key}"; filename="${value.filename}"`);
+      lines.push(`Content-Type: ${value.contentType}`);
+      lines.push('');
+      lines.push(value.buffer.toString('binary'));
+    } else {
+      lines.push(`--${boundary}`);
+      lines.push(`Content-Disposition: form-data; name="${key}"`);
+      lines.push('');
+      lines.push(value);
+    }
+  }
+  
+  lines.push(`--${boundary}--`);
+  lines.push('');
+  
+  return Buffer.from(lines.join('\r\n'), 'binary');
 }
