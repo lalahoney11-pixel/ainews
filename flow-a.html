@@ -448,8 +448,8 @@
         // 阿里云 OSS 配置
         // 请从环境变量或配置文件读取，不要直接提交到代码仓库
         const OSS_CONFIG = {
-            accessKeyId: window.OSS_ACCESS_KEY_ID || 'YOUR_OSS_ACCESS_KEY_ID',
-            accessKeySecret: window.OSS_ACCESS_KEY_SECRET || 'YOUR_OSS_ACCESS_KEY_SECRET',
+            accessKeyId: (typeof window !== 'undefined' && window.OSS_ACCESS_KEY_ID) ? window.OSS_ACCESS_KEY_ID : '',
+            accessKeySecret: (typeof window !== 'undefined' && window.OSS_ACCESS_KEY_SECRET) ? window.OSS_ACCESS_KEY_SECRET : '',
             bucket: 'oss-pai-jthp4harhlmya8j0ax-cn-shanghai',
             region: 'oss-cn-shanghai',
             endpoint: 'oss-cn-shanghai.aliyuncs.com',
@@ -604,6 +604,15 @@
         }
 
         async function handleImageUpload(event) {
+            // 检查 OSS 配置
+            if (!OSS_CONFIG.accessKeyId || !OSS_CONFIG.accessKeySecret || 
+                OSS_CONFIG.accessKeyId === 'YOUR_OSS_ACCESS_KEY_ID' ||
+                OSS_CONFIG.accessKeyId === '') {
+                alert('⚠️ 图片上传功能需要配置阿里云 OSS\n\n请在本地使用时创建 config.js 文件，填入您的 OSS AccessKey。\n\n在线版本仅支持使用 AI 生成的图片。');
+                event.target.value = '';
+                return;
+            }
+
             const files = event.target.files;
             if (!files || files.length === 0) return;
 
