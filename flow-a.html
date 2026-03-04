@@ -621,7 +621,7 @@
 
                 try {
                     let imageUrl;
-                    // 优先使用 OSS，如果没有配置则使用 Imgur
+                    // 优先使用 OSS，如果没有配置则使用免费图床
                     if (OSS_CONFIG.accessKeyId && OSS_CONFIG.accessKeySecret && 
                         OSS_CONFIG.accessKeyId !== '' && 
                         OSS_CONFIG.accessKeyId !== 'YOUR_OSS_ACCESS_KEY_ID') {
@@ -631,8 +631,12 @@
                         const objectKey = `images/${timestamp}_${randomStr}.${extension}`;
                         imageUrl = await uploadToOSS(file, objectKey);
                     } else {
-                        // 使用 Imgur 免费图床
-                        imageUrl = await uploadToImgur(file);
+                        // 尝试使用免费图床，失败则提示
+                        try {
+                            imageUrl = await uploadToFileIo(file);
+                        } catch (e) {
+                            throw new Error('在线上传暂时不可用，请在本地使用或联系管理员配置 OSS');
+                        }
                     }
                     state.uploadedImages.push({ url: imageUrl, name: file.name });
                 } catch (error) {
@@ -644,28 +648,44 @@
             event.target.value = '';
         }
 
-        // 上传到 Imgur 免费图床
-        async function uploadToImgur(file) {
+        // 使用 Cloudinary 免费图床（无需 API Key，使用 unsigned upload）
+        async function uploadToCloudinary(file) {
             const formData = new FormData();
-            formData.append('image', file);
-            formData.append('type', 'file');
-
-            // 使用 Imgur 匿名上传（免费，每小时限制）
-            const response = await fetch('https://api.imgur.com/3/image', {
+            formData.append('file', file);
+            formData.append('upload_preset', 'ml_default'); // 使用预设
+            
+            // 使用免费的 Cloudinary cloud
+            const cloudName = 'demo';
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Client-ID 6db47bd702e6acc' // 公共 Client ID
-                },
                 body: formData
             });
 
-            const data = await response.json();
-            
-            if (!response.ok || !data.success) {
-                throw new Error(data.data?.error || 'Imgur 上传失败');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`上传失败: ${errorText.substring(0, 100)}`);
             }
 
-            return data.data.link;
+            const data = await response.json();
+            return data.secure_url;
+        }
+
+        // 备用：使用 file.io 临时图床
+        async function uploadToFileIo(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('https://file.io', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('上传失败，请重试');
+            }
+
+            const data = await response.json();
+            return data.link;
         }
 
         async function uploadToOSS(file, objectKey) {
