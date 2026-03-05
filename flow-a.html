@@ -378,7 +378,7 @@
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-500">用于拼装视频的图片 (<span id="selectedCount">0</span>/10)</h2>
                     <div class="flex gap-2">
-                        <button onclick="clearSelection()" class="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">全部取消</button>
+                        <button id="clearSelectionBtn" onclick="clearSelection()" class="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">全部取消</button>
                     </div>
                 </div>
                 
@@ -391,7 +391,7 @@
                             </svg>
                         </div>
                         <p class="text-sm text-gray-400">点击或拖拽图片到此处上传</p>
-                        <p class="text-xs text-gray-600 mt-2">支持 JPG, PNG (最大 5MB)</p>
+                        <p class="text-xs text-gray-600 mt-2">支持 JPG, PNG (最大 2MB)</p>
                     </div>
                     <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/jpg" multiple onchange="handleImageUpload(event)" class="hidden">
                 </div>
@@ -659,8 +659,8 @@
                     alert(`文件 ${file.name} 不是有效的图片格式（支持 JPG、PNG）`);
                     continue;
                 }
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`文件 ${file.name} 大小超过 5MB 限制`);
+                if (file.size > 2 * 1024 * 1024) {
+                    alert(`文件 ${file.name} 大小超过 2MB 限制`);
                     continue;
                 }
 
@@ -832,6 +832,7 @@
             videoResult.classList.add('hidden');
             generateContentBtn.disabled = true;
             generateVideoBtn.disabled = true;
+            document.getElementById('clearSelectionBtn').disabled = true;
             hideError();
 
             try {
@@ -906,6 +907,7 @@
             } finally {
                 generateContentBtn.disabled = false;
                 generateVideoBtn.disabled = false;
+                document.getElementById('clearSelectionBtn').disabled = false;
             }
         }
 

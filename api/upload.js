@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     const policy = {
       expiration: new Date(Date.now() + 3600000).toISOString(),
       conditions: [
-        ['content-length-range', 0, 10 * 1024 * 1024],
+        ['content-length-range', 0, 2 * 1024 * 1024],
         ['eq', '$key', objectKey]
       ]
     };
