@@ -460,41 +460,33 @@
                 </div>
                 
                 <!-- 默认状态 - 示例预览 -->
-                <div id="videoPlaceholder" class="aspect-[9/16] max-w-[320px] mx-auto bg-gradient-to-b from-gray-900 to-black rounded-xl border border-brand-border shadow-2xl relative overflow-hidden">
-                    <!-- 示例视频框架 -->
-                    <div class="absolute inset-0 flex flex-col">
-                        <!-- 标题区域 -->
-                        <div class="h-1/4 bg-gradient-to-b from-black/80 to-transparent p-4 flex items-start">
-                            <div class="w-full">
-                                <div class="text-[10px] text-emerald-400 mb-1">📌 视频标题将显示在这里</div>
-                                <div class="h-8 bg-white/10 rounded animate-pulse"></div>
-                            </div>
+                <div id="videoPlaceholder" class="aspect-[9/16] max-w-[320px] mx-auto bg-black rounded-xl border border-brand-border shadow-2xl relative overflow-hidden">
+                    <!-- 示例视频图片 -->
+                    <img src="https://oss-pai-jthp4harhlmya8j0ax-cn-shanghai.oss-cn-shanghai.aliyuncs.com/screenshot-20260305-100808.png" class="w-full h-full object-cover opacity-80" alt="示例视频">
+                    
+                    <!-- 标注层 -->
+                    <div class="absolute inset-0 flex flex-col pointer-events-none">
+                        <!-- 标题标注 -->
+                        <div class="h-[28%] bg-gradient-to-b from-black/70 to-transparent p-3 flex flex-col items-center justify-start pt-4">
+                            <div class="bg-emerald-500/90 text-white text-[10px] px-2 py-0.5 rounded mb-1">📌 视频标题</div>
+                            <div class="bg-black/50 text-emerald-300 text-[9px] px-2 py-0.5 rounded max-w-[90%] text-center">您输入的标题将显示在这里</div>
                         </div>
-                        <!-- 图片区域 -->
-                        <div class="flex-1 flex items-center justify-center p-4">
-                            <div class="text-center">
-                                <div class="w-20 h-20 mx-auto mb-3 rounded-lg bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center">
-                                    <svg class="h-8 w-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <div class="text-[10px] text-gray-500">🖼️ 您选择的图片将在这里轮播</div>
-                            </div>
+                        
+                        <!-- 图片标注 -->
+                        <div class="flex-1 flex items-center justify-center">
+                            <div class="bg-purple-500/90 text-white text-[10px] px-2 py-0.5 rounded">🖼️ 您选择的图片将在这里轮播</div>
                         </div>
-                        <!-- 口播文案区域 -->
-                        <div class="h-1/4 bg-gradient-to-t from-black/90 to-transparent p-4 flex items-end">
-                            <div class="w-full">
-                                <div class="text-[10px] text-blue-400 mb-1">🎙️ 口播文案将转为配音</div>
-                                <div class="space-y-1">
-                                    <div class="h-2 bg-white/10 rounded w-full"></div>
-                                    <div class="h-2 bg-white/10 rounded w-3/4"></div>
-                                </div>
-                            </div>
+                        
+                        <!-- 口播文案标注 -->
+                        <div class="h-[22%] bg-gradient-to-t from-black/80 to-transparent p-3 flex flex-col items-center justify-end pb-6">
+                            <div class="bg-blue-500/90 text-white text-[10px] px-2 py-0.5 rounded mb-1">🎙️ 口播文案</div>
+                            <div class="bg-black/50 text-blue-300 text-[9px] px-2 py-0.5 rounded max-w-[90%] text-center">转为AI配音和字幕显示</div>
                         </div>
                     </div>
+                    
                     <!-- 提示文字 -->
-                    <div class="absolute bottom-16 left-0 right-0 text-center">
-                        <p class="text-xs text-gray-500">填写左侧内容后点击"生成视频"</p>
+                    <div class="absolute bottom-2 left-0 right-0 text-center">
+                        <p class="text-[10px] text-gray-400 bg-black/60 inline-block px-2 py-0.5 rounded">填写左侧内容后点击"生成视频"</p>
                     </div>
                 </div>
             </div>
